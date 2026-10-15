@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Logika & If Clause</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        .tab-btn.active { 
+            border-bottom-width: 4px; 
+            border-color: #3b82f6; 
+            color: #1d4ed8; 
+            font-weight: 700; 
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom styling untuk quiz options */
+        .option-label { cursor: pointer; transition: all 0.2s; }
+        .option-label:hover { background-color: #eff6ff; border-color: #93c5fd; }
+        input[type="radio"]:checked + span { font-weight: bold; color: #1d4ed8; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-blue-700 mb-4 md:mb-0">Modul Logika & Conditional Sentences</h1>
+                <nav class="flex space-x-6 md:space-x-8">
+                    <button onclick="switchTab('materi')" id="btn-materi" class="tab-btn active pb-2 text-gray-500 hover:text-blue-600 transition text-lg">📝 Panel Materi</button>
+                    <button onclick="switchTab('latihan')" id="btn-latihan" class="tab-btn pb-2 text-gray-500 hover:text-blue-600 transition text-lg">🧠 Panel Latihan</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+
+        <!-- ================= PANEL 1: MATERI ================= -->
+        <div id="materi" class="tab-content active space-y-8">
+            
+            <!-- Infografis Rumus -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold mb-5 text-gray-800 flex items-center"><span class="text-2xl mr-2">📊</span> Infografis: Aturan Inferensi Logika Dasar</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50/50 p-5 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                        <h3 class="font-bold text-blue-800 text-lg mb-1">Modus Ponens</h3>
+                        <p class="text-sm text-blue-600/80 mb-3">Metode Afirmasi</p>
+                        <div class="font-mono text-sm bg-white p-3 rounded-lg border border-blue-100 shadow-inner text-gray-700">Premis 1: p → q <br>Premis 2: p <br><hr class="my-2 border-gray-200">Kesimpulan: ∴ q</div>
+                    </div>
+                    <div class="bg-red-50/50 p-5 rounded-xl border-l-4 border-red-500 shadow-sm">
+                        <h3 class="font-bold text-red-800 text-lg mb-1">Modus Tollens</h3>
+                        <p class="text-sm text-red-600/80 mb-3">Metode Penyangkalan</p>
+                        <div class="font-mono text-sm bg-white p-3 rounded-lg border border-red-100 shadow-inner text-gray-700">Premis 1: p → q <br>Premis 2: ~q <br><hr class="my-2 border-gray-200">Kesimpulan: ∴ ~p</div>
+                    </div>
+                    <div class="bg-green-50/50 p-5 rounded-xl border-l-4 border-green-500 shadow-sm">
+                        <h3 class="font-bold text-green-800 text-lg mb-1">Silogisme</h3>
+                        <p class="text-sm text-green-600/80 mb-3">Rantai Sebab-Akibat</p>
+                        <div class="font-mono text-sm bg-white p-3 rounded-lg border border-green-100 shadow-inner text-gray-700">Premis 1: p → q <br>Premis 2: q → r <br><hr class="my-2 border-gray-200">Kesimpulan: ∴ p → r</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evaluator Logika -->
+            <section class="bg-slate-800 p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-slate-700 opacity-50 blur-2xl"></div>
+                <h2 class="text-2xl font-bold mb-2 flex items-center relative z-10"><span class="mr-3">⚙️</span> Evaluator Logika Interaktif</h2>
+                <p class="text-slate-300 text-sm mb-6 relative z-10">Uji validitas argumen secara real-time dengan mengubah nilai premis kedua.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2 font-medium">Aturan Inferensi:</label>
+                        <select id="evalRule" class="w-full bg-slate-900 border border-slate-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" onchange="runEvaluator()">
+                            <option value="ponens">Modus Ponens (p → q)</option>
+                            <option value="tollens">Modus Tollens (p → q)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2 font-medium">Kondisi Fakta (Premis 2):</label>
+                        <select id="evalFact" class="w-full bg-slate-900 border border-slate-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" onchange="runEvaluator()">
+                            <option value="p_true">Terjadi P (p = True)</option>
+                            <option value="p_false">Tidak Terjadi P (~p = False)</option>
+                            <option value="q_true">Terjadi Q (q = True)</option>
+                            <option value="q_false">Tidak Terjadi Q (~q = False)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <div id="evalResultBox" class="p-4 rounded-lg font-bold text-center text-lg transition-all duration-300 shadow-inner">Pilih kondisi...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold mb-6 border-b pb-4 text-gray-800">📖 Materi: Logika Deduktif & If Clause</h2>
+                
+                <div class="space-y-8">
+                    <!-- Ponens & Tollens -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-700 mb-3 flex items-center"><span class="w-2 h-6 bg-blue-500 mr-2 rounded"></span>1. Modus Ponens</h3>
+                            <ul class="space-y-3 text-gray-600 text-sm">
+                                <li class="p-3 bg-gray-50 rounded-lg">If he studies hard, he will pass the exam. He studies hard. <br><strong class="text-gray-800">Result:</strong> He will pass the exam.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If it rains, the grass gets wet. It is raining. <br><strong class="text-gray-800">Result:</strong> The grass gets wet.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If she has a ticket, she enters. She has a ticket. <br><strong class="text-gray-800">Result:</strong> She enters.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If they win, they are champions. They win. <br><strong class="text-gray-800">Result:</strong> They are champions.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If the engine is hot, the fan starts. The engine is hot. <br><strong class="text-gray-800">Result:</strong> The fan starts.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-red-700 mb-3 flex items-center"><span class="w-2 h-6 bg-red-500 mr-2 rounded"></span>2. Modus Tollens</h3>
+                            <ul class="space-y-3 text-gray-600 text-sm">
+                                <li class="p-3 bg-gray-50 rounded-lg">If the cake is done, it smells good. It doesn't smell good. <br><strong class="text-gray-800">Result:</strong> The cake is not done.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If he is a bird, he has wings. He does not have wings. <br><strong class="text-gray-800">Result:</strong> He is not a bird.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If the battery is full, it turns on. It does not turn on. <br><strong class="text-gray-800">Result:</strong> The battery is not full.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If she is home, her car is here. Her car is not here. <br><strong class="text-gray-800">Result:</strong> She is not home.</li>
+                                <li class="p-3 bg-gray-50 rounded-lg">If water boils, it's 100°C. It's not 100°C. <br><strong class="text-gray-800">Result:</strong> The water does not boil.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Silogisme -->
+                    <div>
+                        <h3 class="text-xl font-bold text-green-700 mb-3 flex items-center"><span class="w-2 h-6 bg-green-500 mr-2 rounded"></span>3. Silogisme</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600 text-sm">
+                            <div class="p-3 bg-gray-50 rounded-lg">If you eat too much, you get a stomachache. If you get a stomachache, you need medicine. <br><strong class="text-gray-800">Result:</strong> If you eat too much, you need medicine.</div>
+                            <div class="p-3 bg-gray-50 rounded-lg">If it's a holiday, the office is closed. If the office is closed, we stay home. <br><strong class="text-gray-800">Result:</strong> If it's a holiday, we stay home.</div>
+                            <div class="p-3 bg-gray-50 rounded-lg">If he gets promoted, his salary increases. If his salary increases, he buys a car. <br><strong class="text-gray-800">Result:</strong> If he gets promoted, he buys a car.</div>
+                            <div class="p-3 bg-gray-50 rounded-lg">If the wind is strong, waves are high. If waves are high, fishing is dangerous. <br><strong class="text-gray-800">Result:</strong> If the wind is strong, fishing is dangerous.</div>
+                            <div class="p-3 bg-gray-50 rounded-lg">If you practice, you master it. If you master it, you win. <br><strong class="text-gray-800">Result:</strong> If you practice, you win.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- If Clause -->
+                    <div class="mt-8 border-t pt-8">
+                        <h3 class="text-xl font-bold text-purple-700 mb-5 flex items-center"><span class="w-2 h-6 bg-purple-500 mr-2 rounded"></span>4. If Clause (Conditional Sentences)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-purple-50/50 p-5 rounded-xl border border-purple-100">
+                                <h4 class="font-bold text-gray-800 mb-1">Type 1: Future Possible</h4>
+                                <p class="text-xs text-purple-600 font-medium mb-4">(If + Present, Will + V1)</p>
+                                <ul class="list-disc pl-4 text-sm space-y-2 text-gray-700">
+                                    <li>If it rains, I will stay home.</li>
+                                    <li>If you invite her, she will come.</li>
+                                    <li>If they work hard, they will finish.</li>
+                                    <li>If he calls, I will answer.</li>
+                                    <li>If we hurry, we will catch it.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-purple-50/50 p-5 rounded-xl border border-purple-100">
+                                <h4 class="font-bold text-gray-800 mb-1">Type 2: Present Unreal</h4>
+                                <p class="text-xs text-purple-600 font-medium mb-4">(If + Past, Would + V1)</p>
+                                <ul class="list-disc pl-4 text-sm space-y-2 text-gray-700">
+                                    <li>If I had money, I would buy it.</li>
+                                    <li>If she knew, she would tell him.</li>
+                                    <li>If I were you, I wouldn't do it.</li>
+                                    <li>If they studied, they would pass.</li>
+                                    <li>If he spoke English, he would get it.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-purple-50/50 p-5 rounded-xl border border-purple-100">
+                                <h4 class="font-bold text-gray-800 mb-1">Type 3: Past Unreal</h4>
+                                <p class="text-xs text-purple-600 font-medium mb-4">(If + Past Perfect, Would have + V3)</p>
+                                <ul class="list-disc pl-4 text-sm space-y-2 text-gray-700">
+                                    <li>If I had woken up, I would have caught it.</li>
+                                    <li>If she had studied, she would have passed.</li>
+                                    <li>If it had rained, it would have been wet.</li>
+                                    <li>If invited, I would have gone.</li>
+                                    <li>If he had looked, he wouldn't have crashed.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PANEL 2: LATIHAN ================= -->
+        <div id="latihan" class="tab-content">
+            
+            <!-- Layar Setup -->
+            <div id="quiz-setup" class="bg-white p-10 rounded-2xl shadow-xl text-center max-w-3xl mx-auto mt-4 border-t-4 border-blue-600">
+                <div class="text-5xl mb-4">🧠</div>
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">Ujian Pemahaman Komprehensif</h2>
+                <p class="text-gray-600 mb-6 text-lg leading-relaxed">Sistem akan mengacak dan memilih tepat <strong>20 soal</strong> (5 Ponens, 5 Tollens, 5 Silogisme, 5 If Clause) dari bank soal kami. Setiap siswa akan mendapatkan set soal dan urutan yang unik.</p>
+                
+                <div class="max-w-md mx-auto mb-8 text-left">
+                    <label for="student-name" class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap Siswa:</label>
+                    <input type="text" id="student-name" placeholder="Masukkan nama Anda di sini..." class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm">
+                </div>
+
+                <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform transform hover:-translate-y-1 text-lg">
+                    🚀 Generate & Mulai Ujian
+                </button>
+            </div>
+
+            <!-- Layar Kuis -->
+            <div id="quiz-active" class="hidden">
+                <!-- Bar Status Floating -->
+                <div class="bg-blue-800 text-white p-5 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center mb-8 sticky top-24 z-40 backdrop-blur-md bg-opacity-95">
+                    <div class="mb-3 md:mb-0 text-center md:text-left">
+                        <h2 class="text-xl font-bold">Peserta: <span id="display-name" class="text-yellow-300">Nama Siswa</span></h2>
+                        <p class="text-blue-200 text-sm">Pastikan menjawab seluruh 20 soal sebelum menekan submit.</p>
+                    </div>
+                    <div class="bg-white text-blue-900 px-6 py-2 rounded-lg font-mono font-bold shadow-inner text-lg">
+                        TOKEN: <span id="display-code">XXXXXX</span>
+                    </div>
+                </div>
+
+                <div id="questions-container" class="space-y-6 max-w-4xl mx-auto">
+                    <!-- Render by JS -->
+                </div>
+
+                <div class="mt-12 mb-8 text-center">
+                    <button onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-16 rounded-full shadow-xl transition-transform transform hover:-translate-y-1 text-xl flex items-center justify-center mx-auto">
+                        <span class="mr-2">✅</span> Kumpulkan Jawaban
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layar Hasil -->
+            <div id="quiz-result" class="hidden bg-white p-12 rounded-2xl shadow-2xl text-center max-w-2xl mx-auto mt-8 border-t-8 border-green-500 relative overflow-hidden">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-4xl font-black text-gray-800 mb-2">LUAR BIASA, <span id="result-name" class="text-blue-600">Siswa</span>!</h2>
+                <p class="text-gray-600 text-lg mb-8">Anda telah menyelesaikan tes logika ini dengan Token Autentik.</p>
+                
+                <div class="bg-gray-50 rounded-xl p-8 mb-8 border border-gray-200 shadow-inner">
+                    <p class="text-sm text-gray-500 uppercase tracking-widest font-bold mb-2">Skor Akhir Anda</p>
+                    <p class="text-6xl font-black text-green-600 mb-6 drop-shadow-sm"><span id="final-score">0</span><span class="text-3xl text-gray-400">/100</span></p>
+                    <div class="w-full bg-gray-200 h-px mb-6"></div>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest font-bold mb-2">Token Sesi</p>
+                    <p class="text-2xl font-mono font-bold text-gray-800 bg-yellow-100 py-3 rounded-lg border border-yellow-300" id="result-code">XXXXXX</p>
+                </div>
+
+                <!-- Container Peringatan Pelanggaran Tab -->
+                <div id="cheating-warning-container" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-5 mb-8 text-left rounded-r-xl shadow-sm">
+                    <p class="font-bold flex items-center text-lg mb-1"><span class="text-2xl mr-2">⚠️</span> Peringatan Pelanggaran!</p>
+                    <p class="text-red-800">Sistem mendeteksi bahwa peserta telah meninggalkan atau berpindah tab halaman ujian sebanyak <span id="cheating-count" class="font-black text-2xl text-red-600 bg-red-200 px-2 py-1 rounded">0</span> kali selama sesi kuis aktif.</p>
+                </div>
+
+                <p class="text-sm text-red-500 font-medium mb-8 bg-red-50 p-3 rounded-lg border border-red-100">
+                    *Untuk menjaga integritas dan mencegah kecurangan antar siswa, rincian jawaban benar/salah dirahasiakan oleh sistem.
+                </p>
+
+                <button onclick="resetQuiz()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-full transition shadow-md">
+                    🔄 Kembali ke Awal
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // UI Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Logic Evaluator
+        function runEvaluator() {
+            const rule = document.getElementById('evalRule').value;
+            const fact = document.getElementById('evalFact').value;
+            const resultBox = document.getElementById('evalResultBox');
+            
+            resultBox.className = "p-4 rounded-lg font-bold text-center text-lg transition-all duration-300 shadow-inner";
+
+            if (rule === 'ponens') {
+                if (fact === 'p_true') {
+                    resultBox.innerText = "✅ VALID: Q = Benar";
+                    resultBox.classList.add("bg-green-600", "text-white");
+                } else if (fact === 'q_true' || fact === 'p_false') {
+                    resultBox.innerText = "❌ FALLACY (Kesesatan Logika)";
+                    resultBox.classList.add("bg-red-600", "text-white");
+                } else {
+                    resultBox.innerText = "⚠️ TIDAK DAPAT DITARIK KESIMPULAN";
+                    resultBox.classList.add("bg-yellow-500", "text-slate-900");
+                }
+            } else if (rule === 'tollens') {
+                if (fact === 'q_false') {
+                    resultBox.innerText = "✅ VALID: P = Salah";
+                    resultBox.classList.add("bg-green-600", "text-white");
+                } else if (fact === 'p_false' || fact === 'q_true') {
+                    resultBox.innerText = "❌ FALLACY (Kesesatan Logika)";
+                    resultBox.classList.add("bg-red-600", "text-white");
+                } else {
+                    resultBox.innerText = "⚠️ TIDAK DAPAT DITARIK KESIMPULAN";
+                    resultBox.classList.add("bg-yellow-500", "text-slate-900");
+                }
+            }
+        }
+        window.onload = runEvaluator;
+
+        const ponensGuide = "Jika P maka Q. Terjadi P. Maka Q terjadi.";
+        const tollensGuide = "Jika P maka Q. Tidak terjadi Q. Maka tidak terjadi P.";
+        const syllogismGuide = "Jika A maka B. Jika B maka C. Kesimpulan: Jika A maka C.";
+        
+        const questionBank = [
+            // --- PONENS (20 Soal) ---
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the student submits the KIP Kuliah documents, the data is verified.<br>Premise 2: The student submits the KIP Kuliah documents.", options: ["The data is not verified.", "The data is verified.", "The document is rejected.", "The student is suspended."], correctAnswer: "The data is verified." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If a teacher uses aSc TimeTables, class scheduling is faster.<br>Premise 2: The teacher uses aSc TimeTables.", options: ["Class scheduling is slower.", "Class scheduling is faster.", "The classes are canceled.", "The teachers go home."], correctAnswer: "Class scheduling is faster." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If you design with Canva, the presentation looks professional.<br>Premise 2: You design with Canva.", options: ["The presentation looks professional.", "The presentation looks messy.", "The app crashes.", "The design is deleted."], correctAnswer: "The presentation looks professional." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the user inputs text into TurboLearn AI, it generates flashcards.<br>Premise 2: The user inputs text into TurboLearn AI.", options: ["It deletes the text.", "It plays music.", "It generates flashcards.", "The user logs out."], correctAnswer: "It generates flashcards." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If a prompt is given to Suno, it creates an AI music track.<br>Premise 2: A prompt is given to Suno.", options: ["It creates a video.", "It stops working.", "It creates an AI music track.", "It creates an image."], correctAnswer: "It creates an AI music track." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If a passenger has a LinkMiles membership, they earn points on Citilink.<br>Premise 2: The passenger has a LinkMiles membership.", options: ["They lose points.", "They earn points on Citilink.", "They pay extra.", "Their ticket is canceled."], correctAnswer: "They earn points on Citilink." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the train from Bandung is delayed, the KAI app sends a notification.<br>Premise 2: The train from Bandung is delayed.", options: ["The train arrives early.", "The KAI app deletes the ticket.", "The KAI app sends a notification.", "The station closes."], correctAnswer: "The KAI app sends a notification." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If fresh shrimp is sold at Lhokseumawe market, the chef buys it.<br>Premise 2: Fresh shrimp is sold at Lhokseumawe market.", options: ["The chef buys it.", "The chef ignores it.", "The shrimp is thrown away.", "The market closes."], correctAnswer: "The chef buys it." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the MPLS event in Serdang Bedagai starts, students gather in the hall.<br>Premise 2: The MPLS event in Serdang Bedagai starts.", options: ["Students go home.", "Students gather in the hall.", "Teachers cancel the event.", "The hall is locked."], correctAnswer: "Students gather in the hall." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the user upgrades to Google AI Plus, storage capacity expands.<br>Premise 2: The user upgrades to Google AI Plus.", options: ["Storage capacity decreases.", "Storage capacity expands.", "The account is suspended.", "The files are deleted."], correctAnswer: "Storage capacity expands." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the tax return is filed via Direktorat Jenderal Pajak, the process is paperless.<br>Premise 2: The tax return is filed via Direktorat Jenderal Pajak.", options: ["The process is paperless.", "The process requires more paper.", "The tax increases.", "The office closes."], correctAnswer: "The process is paperless." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the smartphone battery is fully charged, the device turns on.<br>Premise 2: The smartphone battery is fully charged.", options: ["The device explodes.", "The device turns off.", "The device turns on.", "The battery drains instantly."], correctAnswer: "The device turns on." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the teacher assesses performance using Google Forms, the data is auto-saved.<br>Premise 2: The teacher assesses performance using Google Forms.", options: ["The data is auto-saved.", "The data is lost.", "The form is broken.", "The internet disconnects."], correctAnswer: "The data is auto-saved." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the medical student uses BioDigital Human, they see a 3D anatomy model.<br>Premise 2: The medical student uses BioDigital Human.", options: ["They see a 2D map.", "They see a 3D anatomy model.", "The software crashes.", "The model disappears."], correctAnswer: "They see a 3D anatomy model." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If electricity tokens are purchased via PT PLN, the meter is updated.<br>Premise 2: Electricity tokens are purchased via PT PLN.", options: ["The meter is broken.", "The lights go out.", "The meter is updated.", "The token is rejected."], correctAnswer: "The meter is updated." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If payment is made via wondr by BNI, a QRIS receipt is generated.<br>Premise 2: Payment is made via wondr by BNI.", options: ["A QRIS receipt is generated.", "The transaction fails.", "Cash is dispensed.", "The bank closes."], correctAnswer: "A QRIS receipt is generated." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If you shop at Shopee, you can use free shipping vouchers.<br>Premise 2: You shop at Shopee.", options: ["Shipping costs double.", "You can use free shipping vouchers.", "The account is banned.", "The items are returned."], correctAnswer: "You can use free shipping vouchers." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If the Gamelan instruments are played, traditional music is heard.<br>Premise 2: The Gamelan instruments are played.", options: ["Modern pop is heard.", "Silence fills the room.", "Traditional music is heard.", "The instruments break."], correctAnswer: "Traditional music is heard." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If a customer visits 55 Barbershop, they get a haircut.<br>Premise 2: A customer visits 55 Barbershop.", options: ["They buy food.", "They get a haircut.", "They buy shoes.", "They wash their car."], correctAnswer: "They get a haircut." },
+            { ruleName: "Modus Ponens", guidance: ponensGuide, premise: "Premise 1: If apparel is bought from Melissaa Fashionistaa, it arrives in a box.<br>Premise 2: Apparel is bought from Melissaa Fashionistaa.", options: ["It arrives in a plastic bag.", "It arrives in a box.", "It never arrives.", "It is sent back."], correctAnswer: "It arrives in a box." },
+
+            // --- TOLLENS (20 Soal) ---
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the KIP Kuliah account is active, the registration succeeds.<br>Premise 2: The registration does NOT succeed.", options: ["The KIP Kuliah account is active.", "The KIP Kuliah account is NOT active.", "The internet is fast.", "The student gets the scholarship."], correctAnswer: "The KIP Kuliah account is NOT active." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the school uses aSc TimeTables, there are no overlapping classes.<br>Premise 2: There are overlapping classes.", options: ["The school uses aSc TimeTables.", "The school does NOT use aSc TimeTables.", "The teachers are happy.", "The classes are perfect."], correctAnswer: "The school does NOT use aSc TimeTables." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the design is made in Canva, it has a specific watermark.<br>Premise 2: It does NOT have a specific watermark.", options: ["The design is NOT made in Canva.", "The design is made in Canva.", "The watermark is invisible.", "The design is stolen."], correctAnswer: "The design is NOT made in Canva." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If TurboLearn AI is used, study notes are generated automatically.<br>Premise 2: Study notes are NOT generated automatically.", options: ["TurboLearn AI is used.", "TurboLearn AI is NOT used.", "The student is studying.", "The AI is smart."], correctAnswer: "TurboLearn AI is NOT used." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the user is subscribed to Google AI Plus, they have expanded storage.<br>Premise 2: They do NOT have expanded storage.", options: ["The user is subscribed to Google AI Plus.", "The user is NOT subscribed to Google AI Plus.", "The storage is full.", "The user is rich."], correctAnswer: "The user is NOT subscribed to Google AI Plus." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the train ticket is booked via Access by KAI, it shows a dynamic barcode.<br>Premise 2: It does NOT show a dynamic barcode.", options: ["It is booked via Access by KAI.", "It is NOT booked via Access by KAI.", "The train is leaving.", "The barcode is broken."], correctAnswer: "It is NOT booked via Access by KAI." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the flight is operated by Citilink, LinkMiles can be claimed.<br>Premise 2: LinkMiles can NOT be claimed.", options: ["The flight is operated by Citilink.", "The flight is NOT operated by Citilink.", "The miles are expired.", "The passenger is sleeping."], correctAnswer: "The flight is NOT operated by Citilink." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the hotel is in Jakarta, the bill is in Rupiah (IDR).<br>Premise 2: The bill is NOT in Rupiah (IDR).", options: ["The hotel is NOT in Jakarta.", "The hotel is in Jakarta.", "The hotel is free.", "The guest pays in cash."], correctAnswer: "The hotel is NOT in Jakarta." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the market is in Lhokseumawe, they sell local dried fish.<br>Premise 2: They do NOT sell local dried fish.", options: ["The market is in Lhokseumawe.", "The market is NOT in Lhokseumawe.", "The fish is fresh.", "The market is closed."], correctAnswer: "The market is NOT in Lhokseumawe." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the orientation is in Serdang Bedagai, it is called MPLS.<br>Premise 2: It is NOT called MPLS.", options: ["The orientation is in Serdang Bedagai.", "The orientation is NOT in Serdang Bedagai.", "The students are late.", "The event is canceled."], correctAnswer: "The orientation is NOT in Serdang Bedagai." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the meeting discusses teacher evaluation, spreadsheets are displayed.<br>Premise 2: Spreadsheets are NOT displayed.", options: ["The meeting discusses teacher evaluation.", "The meeting does NOT discuss teacher evaluation.", "The projector is broken.", "The teachers are evaluated."], correctAnswer: "The meeting does NOT discuss teacher evaluation." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the customer pays with wondr by BNI, the transaction is instant.<br>Premise 2: The transaction is NOT instant.", options: ["The customer pays with wondr by BNI.", "The customer does NOT pay with wondr by BNI.", "The bank is closed.", "The internet is fast."], correctAnswer: "The customer does NOT pay with wondr by BNI." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the electricity credit is low, the PT PLN meter beeps.<br>Premise 2: The PT PLN meter does NOT beep.", options: ["The electricity credit is low.", "The electricity credit is NOT low.", "The meter is broken.", "The lights are off."], correctAnswer: "The electricity credit is NOT low." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If taxes are filed electronically, DJP sends a confirmation email.<br>Premise 2: DJP does NOT send a confirmation email.", options: ["Taxes are filed electronically.", "Taxes are NOT filed electronically.", "The email is in spam.", "The taxes are paid."], correctAnswer: "Taxes are NOT filed electronically." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If digital identity is active, the IKD app opens without errors.<br>Premise 2: The IKD app does NOT open without errors.", options: ["Digital identity is active.", "Digital identity is NOT active.", "The phone is broken.", "The identity is stolen."], correctAnswer: "Digital identity is NOT active." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the clothes are from H&S Busana, the label is blue.<br>Premise 2: The label is NOT blue.", options: ["The clothes are from H&S Busana.", "The clothes are NOT from H&S Busana.", "The clothes are red.", "The label is missing."], correctAnswer: "The clothes are NOT from H&S Busana." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the books are from BUKUSEKOLAH.ID, they have a school stamp.<br>Premise 2: They do NOT have a school stamp.", options: ["The books are from BUKUSEKOLAH.ID.", "The books are NOT from BUKUSEKOLAH.ID.", "The books are fake.", "The books are torn."], correctAnswer: "The books are NOT from BUKUSEKOLAH.ID." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the track is made with Suno, it has an AI tag.<br>Premise 2: It does NOT have an AI tag.", options: ["The track is made with Suno.", "The track is NOT made with Suno.", "The song is bad.", "The tag is hidden."], correctAnswer: "The track is NOT made with Suno." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If the project is managed with Timemark, photos are timestamped.<br>Premise 2: Photos are NOT timestamped.", options: ["The project is managed with Timemark.", "The project is NOT managed with Timemark.", "The camera is broken.", "The photos are blurry."], correctAnswer: "The project is NOT managed with Timemark." },
+            { ruleName: "Modus Tollens", guidance: tollensGuide, premise: "Premise 1: If software is bought from Scalev, a license key is emailed.<br>Premise 2: A license key is NOT emailed.", options: ["Software is bought from Scalev.", "Software is NOT bought from Scalev.", "The software is free.", "The email is hacked."], correctAnswer: "Software is NOT bought from Scalev." },
+
+            // --- SYLLOGISM (20 Soal) ---
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If the student registers for KIP Kuliah, they get financial aid.<br>Premise 2: If they get financial aid, they can pay tuition.", options: ["If the student registers for KIP Kuliah, they can pay tuition.", "If they can pay tuition, they register for KIP Kuliah.", "The student cannot pay tuition.", "The financial aid is canceled."], correctAnswer: "If the student registers for KIP Kuliah, they can pay tuition." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If the schedule is made with aSc TimeTables, teachers know their hours.<br>Premise 2: If teachers know their hours, classes run smoothly.", options: ["If classes run smoothly, the schedule is made with aSc TimeTables.", "If the schedule is made with aSc TimeTables, classes run smoothly.", "Teachers do not know their hours.", "Classes are canceled."], correctAnswer: "If the schedule is made with aSc TimeTables, classes run smoothly." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If the design is created on Canva, it can be exported to PDF.<br>Premise 2: If it can be exported to PDF, it can be printed easily.", options: ["If it can be printed easily, it is created on Canva.", "If the design is created on Canva, it can be printed easily.", "Canva cannot export to PDF.", "Printing is hard."], correctAnswer: "If the design is created on Canva, it can be printed easily." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If TurboLearn AI reads the media, it creates flashcards.<br>Premise 2: If it creates flashcards, students learn faster.", options: ["If students learn faster, TurboLearn AI reads the media.", "If TurboLearn AI reads the media, students learn faster.", "Flashcards make students learn slower.", "TurboLearn AI is slow."], correctAnswer: "If TurboLearn AI reads the media, students learn faster." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If Gemini Notebook is used, sources are analyzed.<br>Premise 2: If sources are analyzed, the research draft is accurate.", options: ["If the research draft is accurate, Gemini Notebook is used.", "If Gemini Notebook is used, the research draft is accurate.", "Sources are never analyzed.", "Research is inaccurate."], correctAnswer: "If Gemini Notebook is used, the research draft is accurate." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If you buy a ticket on Access by KAI, you can board the train to Bandung.<br>Premise 2: If you board the train to Bandung, you arrive in West Java.", options: ["If you arrive in West Java, you buy a ticket on Access by KAI.", "If you buy a ticket on Access by KAI, you arrive in West Java.", "The train doesn't go to Bandung.", "Access by KAI is broken."], correctAnswer: "If you buy a ticket on Access by KAI, you arrive in West Java." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If you fly Citilink, you earn LinkMiles.<br>Premise 2: If you earn LinkMiles, you get flight discounts.", options: ["If you get flight discounts, you fly Citilink.", "If you fly Citilink, you get flight discounts.", "LinkMiles are useless.", "Citilink has no discounts."], correctAnswer: "If you fly Citilink, you get flight discounts." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If you stay at a hotel in Jakarta, you sleep well.<br>Premise 2: If you sleep well, you wake up energized.", options: ["If you wake up energized, you stay at a hotel in Jakarta.", "If you stay at a hotel in Jakarta, you wake up energized.", "Hotels in Jakarta are noisy.", "You never wake up energized."], correctAnswer: "If you stay at a hotel in Jakarta, you wake up energized." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If you visit Lhokseumawe market, you see fresh shrimp.<br>Premise 2: If you see fresh shrimp, you want to cook seafood.", options: ["If you want to cook seafood, you visit Lhokseumawe market.", "If you visit Lhokseumawe market, you want to cook seafood.", "Fresh shrimp is bad.", "Lhokseumawe has no market."], correctAnswer: "If you visit Lhokseumawe market, you want to cook seafood." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If you attend MPLS in Serdang Bedagai, you meet new students.<br>Premise 2: If you meet new students, you make friends.", options: ["If you make friends, you attend MPLS in Serdang Bedagai.", "If you attend MPLS in Serdang Bedagai, you make friends.", "MPLS is boring.", "You don't meet anyone."], correctAnswer: "If you attend MPLS in Serdang Bedagai, you make friends." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If the meeting is about teacher performance, evaluation data is needed.<br>Premise 2: If evaluation data is needed, Google Forms is sent out.", options: ["If Google Forms is sent out, the meeting is about teacher performance.", "If the meeting is about teacher performance, Google Forms is sent out.", "Evaluation data is ignored.", "Google Forms is broken."], correctAnswer: "If the meeting is about teacher performance, Google Forms is sent out." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If wondr by BNI is used, QRIS payment is processed.<br>Premise 2: If QRIS payment is processed, the merchant receives money.", options: ["If the merchant receives money, wondr by BNI is used.", "If wondr by BNI is used, the merchant receives money.", "QRIS payment always fails.", "The merchant loses money."], correctAnswer: "If wondr by BNI is used, the merchant receives money." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If PT PLN tokens are bought, the meter is filled.<br>Premise 2: If the meter is filled, the house lights turn on.", options: ["If the house lights turn on, PT PLN tokens are bought.", "If PT PLN tokens are bought, the house lights turn on.", "The meter is broken.", "The tokens are fake."], correctAnswer: "If PT PLN tokens are bought, the house lights turn on." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If tax is filed via DJP, the annual obligation is met.<br>Premise 2: If the annual obligation is met, there are no fines.", options: ["If there are no fines, tax is filed via DJP.", "If tax is filed via DJP, there are no fines.", "DJP gives fines.", "Taxes are ignored."], correctAnswer: "If tax is filed via DJP, there are no fines." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If IKD is activated, digital identity is secured.<br>Premise 2: If digital identity is secured, administrative services are faster.", options: ["If administrative services are faster, IKD is activated.", "If IKD is activated, administrative services are faster.", "IKD slows down services.", "Digital identity is dangerous."], correctAnswer: "If IKD is activated, administrative services are faster." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If clothes are bought from Melissaa Fashionistaa, they are trendy.<br>Premise 2: If they are trendy, you look fashionable.", options: ["If you look fashionable, clothes are bought from Melissaa Fashionistaa.", "If clothes are bought from Melissaa Fashionistaa, you look fashionable.", "Trendy clothes are ugly.", "Fashion is dead."], correctAnswer: "If clothes are bought from Melissaa Fashionistaa, you look fashionable." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If books are purchased from Pandu Shop, studying is easier.<br>Premise 2: If studying is easier, grades improve.", options: ["If grades improve, books are purchased from Pandu Shop.", "If books are purchased from Pandu Shop, grades improve.", "Pandu Shop sells bad books.", "Grades always drop."], correctAnswer: "If books are purchased from Pandu Shop, grades improve." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If music is generated by Suno, the melody is unique.<br>Premise 2: If the melody is unique, the song goes viral.", options: ["If the song goes viral, music is generated by Suno.", "If music is generated by Suno, the song goes viral.", "Suno melodies are boring.", "Viral songs are bad."], correctAnswer: "If music is generated by Suno, the song goes viral." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If Timemark is used, project photos are organized.<br>Premise 2: If photos are organized, the final report is neat.", options: ["If the final report is neat, Timemark is used.", "If Timemark is used, the final report is neat.", "Timemark deletes photos.", "The report is messy."], correctAnswer: "If Timemark is used, the final report is neat." },
+            { ruleName: "Silogisme", guidance: syllogismGuide, premise: "Premise 1: If Scalev is used, educational software is licensed.<br>Premise 2: If software is licensed, it gets official updates.", options: ["If it gets official updates, Scalev is used.", "If Scalev is used, it gets official updates.", "Licensed software has viruses.", "Scalev is blocked."], correctAnswer: "If Scalev is used, it gets official updates." },
+
+            // --- IF CLAUSE (20 Soal) ---
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If the KIP Kuliah documents ______ complete, the committee will approve the application.", options: ["are", "were", "had been", "would be"], correctAnswer: "are" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If the school ______ aSc TimeTables, scheduling would be much faster.", options: ["use", "used", "had used", "will use"], correctAnswer: "used" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If I had known about Canva earlier, I ______ the poster better.", options: ["will design", "designed", "would design", "would have designed"], correctAnswer: "would have designed" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If TurboLearn AI ______ the flashcards, we will memorize them tonight.", options: ["generated", "had generated", "generates", "generate"], correctAnswer: "generates" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If I ______ a Google AI Plus subscription, I would store all my heavy files there.", options: ["have", "had", "had had", "has"], correctAnswer: "had" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If she had booked the train via Access by KAI, she ______ the trip to Bandung.", options: ["would not have missed", "will not miss", "would not miss", "did not miss"], correctAnswer: "would not have missed" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If he ______ with Citilink next week, he will earn more LinkMiles.", options: ["flew", "flies", "fly", "had flown"], correctAnswer: "flies" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If we ______ at that hotel in Jakarta again, we would visit the national monument.", options: ["stay", "stayed", "had stayed", "will stay"], correctAnswer: "stayed" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If they had visited the market in Lhokseumawe, they ______ the dried fish.", options: ["would buy", "will buy", "would have bought", "bought"], correctAnswer: "would have bought" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If the MPLS event in Serdang Bedagai ______ on time, the students will be happy.", options: ["start", "started", "starts", "starting"], correctAnswer: "starts" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If the principal ______ for teacher performance data, I would use Google Forms.", options: ["ask", "asked", "had asked", "asks"], correctAnswer: "asked" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If I had paid using wondr by BNI, the transaction ______ successful.", options: ["would be", "will be", "would have been", "was"], correctAnswer: "would have been" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If the PT PLN electricity token ______ out, the meter will beep continuously.", options: ["ran", "runs", "run", "had run"], correctAnswer: "runs" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If everyone ______ Identitas Kependudukan Digital, physical cards would be unnecessary.", options: ["uses", "used", "had used", "use"], correctAnswer: "used" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If he had filed his taxes via DJP earlier, he ______ the late penalty.", options: ["would have avoided", "would avoid", "will avoid", "avoided"], correctAnswer: "would have avoided" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If you ______ from H&S Busana today, the package will arrive tomorrow.", options: ["ordered", "order", "orders", "had ordered"], correctAnswer: "order" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If I ______ educational materials right now, I would browse BUKUSEKOLAH.ID.", options: ["need", "needed", "had needed", "needs"], correctAnswer: "needed" },
+            { ruleName: "If Clause - Type 3 (Past Unreal)", guidance: "Pilih tenses (If + Past Perfect, Would have + V3).", premise: "If the prompt had been more specific, Suno ______ a better song.", options: ["would generate", "will generate", "generated", "would have generated"], correctAnswer: "would have generated" },
+            { ruleName: "If Clause - Type 1 (Future Possible)", guidance: "Pilih tenses (If + Present, Will + V1).", premise: "If we ______ Timemark for this project, the photos will be automatically timestamped.", options: ["use", "used", "uses", "had used"], correctAnswer: "use" },
+            { ruleName: "If Clause - Type 2 (Present Unreal)", guidance: "Pilih tenses (If + Past, Would + V1).", premise: "If I ______ to buy software licenses, I would check Scalev Komit Studio.", options: ["want", "wanted", "had wanted", "wants"], correctAnswer: "wanted" }
+        ];
+
+        let currentQuizCode = "";
+        let currentStudentName = "";
+        let activeQuestions = [];
+        let cheatingCount = 0;
+        let isQuizActive = false;
+
+        // Page Visibility API untuk mendeteksi perpindahan tab
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isQuizActive) {
+                cheatingCount++;
+                // Opsi tambahan: ubah judul tab sesaat sebagai peringatan
+                document.title = "⚠️ JANGAN PINDAH TAB!";
+                setTimeout(() => document.title = "Pembelajaran Logika & If Clause", 3000);
+            }
+        });
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function generateRandomCode() {
+            return 'LOGIC-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            if (!nameInput) {
+                alert("Harap masukkan nama lengkap Anda terlebih dahulu untuk meng-generate soal!");
+                return;
+            }
+            currentStudentName = nameInput;
+
+            // Sembunyikan setup & hasil, tampilkan kuis aktif
+            document.getElementById('quiz-setup').classList.add('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-active').classList.remove('hidden');
+
+            currentQuizCode = generateRandomCode();
+            document.getElementById('display-code').innerText = currentQuizCode;
+            document.getElementById('display-name').innerText = currentStudentName;
+
+            // Reset variabel pelanggaran dan aktifkan status kuis
+            cheatingCount = 0;
+            isQuizActive = true;
+
+            // Filter bank soal berdasarkan kategori (mengambil dari 80 soal yang ada)
+            const ponensBank = questionBank.filter(q => q.ruleName.includes("Ponens"));
+            const tollensBank = questionBank.filter(q => q.ruleName.includes("Tollens"));
+            const syllogismBank = questionBank.filter(q => q.ruleName.includes("Silogisme"));
+            const ifClauseBank = questionBank.filter(q => q.ruleName.includes("If Clause"));
+
+            // Ambil secara acak TEPAT 5 soal dari tiap kategori
+            const selectedPonens = shuffleArray(ponensBank).slice(0, 5);
+            const selectedTollens = shuffleArray(tollensBank).slice(0, 5);
+            const selectedSyllogism = shuffleArray(syllogismBank).slice(0, 5);
+            const selectedIfClause = shuffleArray(ifClauseBank).slice(0, 5);
+
+            // Gabungkan menjadi 20 soal lalu acak posisi soal tersebut secara keseluruhan
+            let combinedQuestions = [...selectedPonens, ...selectedTollens, ...selectedSyllogism, ...selectedIfClause];
+            
+            activeQuestions = shuffleArray(combinedQuestions).map(q => {
+                // Acak juga opsi pilihan ganda pada tiap soal
+                return { ...q, options: shuffleArray(q.options) };
+            });
+
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            // Render 20 soal terpilih ke DOM
+            activeQuestions.forEach((q, index) => {
+                let borderClass = "border-gray-200";
+                if(q.ruleName.includes("Ponens")) borderClass = "border-blue-400";
+                else if(q.ruleName.includes("Tollens")) borderClass = "border-red-400";
+                else if(q.ruleName.includes("Silogisme")) borderClass = "border-green-400";
+                else borderClass = "border-purple-400";
+
+                let html = `
+                    <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border-l-4 ${borderClass} question-card transition hover:shadow-md">
+                        <div class="mb-5">
+                            <span class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">Soal ${index + 1} of ${activeQuestions.length} | Kategori: ${q.ruleName}</span>
+                            <p class="text-sm text-slate-500 italic mb-4 bg-slate-50 p-2 rounded">"Panduan: ${q.guidance}"</p>
+                            <p class="text-lg font-medium text-slate-800 leading-relaxed">${q.premise}</p>
+                        </div>
+                        <div class="space-y-3 mt-4">
+                `;
+
+                q.options.forEach((opt) => {
+                    const safeVal = opt.replace(/"/g, '&quot;');
+                    html += `
+                        <label class="option-label flex items-start md:items-center p-4 border rounded-xl hover:bg-blue-50">
+                            <input type="radio" name="q_${index}" value="${safeVal}" class="mt-1 md:mt-0 w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-3 text-slate-700 font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function submitQuiz() {
+            let correctCount = 0;
+            let answeredCount = 0;
+
+            activeQuestions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q_${index}"]:checked`);
+                if (selected) {
+                    answeredCount++;
+                    if (selected.value === q.correctAnswer) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            if (answeredCount < activeQuestions.length) {
+                alert(`Anda baru menjawab ${answeredCount} dari ${activeQuestions.length} soal. Harap lengkapi semua jawaban sebelum submit!`);
+                return;
+            }
+
+            // Hitung skor akhir berbasis persentase (Skala 100)
+            const score = Math.round((correctCount / activeQuestions.length) * 100);
+
+            // Matikan pelacakan tab
+            isQuizActive = false;
+
+            // Transisi ke layar hasil
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            
+            // Masukkan nama ke halaman hasil
+            document.getElementById('result-name').innerText = currentStudentName;
+
+            // Tampilkan Peringatan Pelanggaran jika ada
+            const cheatingContainer = document.getElementById('cheating-warning-container');
+            const cheatingCountEl = document.getElementById('cheating-count');
+            if (cheatingCount > 0) {
+                cheatingCountEl.innerText = cheatingCount;
+                cheatingContainer.classList.remove('hidden');
+            } else {
+                cheatingContainer.classList.add('hidden');
+            }
+            
+            // Animasi perhitungan angka (Counter)
+            let currentDisplay = 0;
+            const scoreEl = document.getElementById('final-score');
+            const timer = setInterval(() => {
+                currentDisplay += Math.ceil(score / 50) || 1; 
+                if (currentDisplay >= score) {
+                    currentDisplay = score;
+                    clearInterval(timer);
+                    fireConfetti();
+                }
+                scoreEl.innerText = currentDisplay;
+            }, 30);
+
+            document.getElementById('result-code').innerText = currentQuizCode;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            isQuizActive = false;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-setup').classList.remove('hidden');
+            document.getElementById('student-name').value = ""; // Reset nama untuk peserta berikutnya
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Efek Ledakan Canvas Confetti
+        function fireConfetti() {
+            var duration = 4 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 35, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) { return clearInterval(interval); }
+                var particleCount = 60 * (timeLeft / duration);
+                
+                // Letupan dari dua sisi layar
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
